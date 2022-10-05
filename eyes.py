@@ -77,7 +77,7 @@ if JOYSTICK_X_IN >= 0 or JOYSTICK_Y_IN >= 0 or PUPIL_IN >= 0:
 
 # Load SVG file, extract paths & convert to point lists --------------------
 
-dom               = parse("graphics/eye2_change.svg")
+dom               = parse("graphics/eye2_change.svg") #change the file in this line to change the sizes of the iris and scleraFront (for now)
 vb                = get_view_box(dom)
 pupilMinPts       = get_points(dom, "pupilMin"      , 32, True , True )
 pupilMaxPts       = get_points(dom, "pupilMax"      , 32, True , True )
