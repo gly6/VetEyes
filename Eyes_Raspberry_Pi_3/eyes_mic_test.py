@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# lots of these comments are from adafruit themselves as well 
+
 # This is a hasty port of the Teensy eyes code to Python...all kludgey with
 # an embarrassing number of globals in the frame() function and stuff.
 # Needed to get SOMETHING working, can focus on improvements next.
@@ -29,11 +31,7 @@ import os
 # INPUT CONFIG for eye motion ----------------------------------------------
 # ANALOG INPUTS REQUIRE SNAKE EYES BONNET
 
-#JOYSTICK_X_IN   = -1    # Analog input for eye horiz pos (-1 = auto)
-#JOYSTICK_Y_IN   = -1    # Analog input for eye vert position (")
 PUPIL_IN        = 1    # Analog input for pupil control (-1 = auto)
-#JOYSTICK_X_FLIP = False # If True, reverse stick X axis
-#JOYSTICK_Y_FLIP = False # If True, reverse stick Y axis
 PUPIL_IN_FLIP   = False # If True, reverse reading from PUPIL_IN
 TRACKING        = True  # If True, eyelid tracks pupil
 PUPIL_SMOOTH    = 16    # If > 0, filter input from PUPIL_IN
@@ -44,16 +42,9 @@ BLINK_PIN       = -1    # GPIO pin for blink button (BOTH eyes)
 WINK_R_PIN      = -1    # GPIO pin for RIGHT eye wink button
 AUTOBLINK       = True  # If True, eyes blink autonomously
 CRAZY_EYES      = False # If True, each eye moves in different directions
-#lux = 0  # this is for the light sensor
-#OP_MODE = 1 # 0 for nature mode, in this mode, it act as nature, 1 for operation mode, keep still
 pupil_expected_size = 0.2 # pupil size
 curXSet = 0.0 #store the position for the X in the operation mode, zeor means middle
 curYSet = 0.0 #store the position for the Y in the operation mode
-#earliest_sound_sensor = "O"
-#sound_sensor_one = 0
-#sound_sensor_two = 0
-#sound_sensor_three = 0
-#sound_sensor_four = 0
 
 
 # I2C stuff     
@@ -90,15 +81,6 @@ GPIO.setup(abnormal_button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(left_eye_button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(right_eye_button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(mic_gpio, GPIO.IN)
-
-
-#def callback(channel):
-#    if GPIO.input(channel):
-#        change_eye_direction(randint(-20, 20), randint(-20,20))
-#        print("MIC ON")
-#    else: 
-#        change_eye_direction(randint(-20, 20), randint(-20, 20))
-#        print("MIC OFF")
         
 
 # ADC stuff ----------------------------------------------------------------
@@ -106,20 +88,13 @@ GPIO.setup(mic_gpio, GPIO.IN)
 # ADC channels are read and stored in a separate thread to avoid slowdown
 # from blocking operations. The animation loop can read at its leisure.
 
-#if JOYSTICK_X_IN >= 0 or JOYSTICK_Y_IN >= 0 or PUPIL_IN >= 0:
 if PUPIL_IN >= 0:
     bonnet = SnakeEyesBonnet(daemon=True)
-    #bonnet.setup_channel(JOYSTICK_X_IN, reverse=JOYSTICK_X_FLIP)
-    #bonnet.setup_channel(JOYSTICK_Y_IN, reverse=JOYSTICK_Y_FLIP)
     bonnet.setup_channel(PUPIL_IN, reverse=PUPIL_IN_FLIP)
     bonnet.start()
 
 
 # Load SVG file, extract paths & convert to point lists --------------------
-#laziness 
-change_size = 0 #0-1 for size
-#0.1 for the small size, 0.5 for normal, 1 for large 
-move_size = 1 # 0 is not moving, 1 is moving
 
 dom               = parse("new_graphics/eye_6.svg") #change the file in this line to change the sizes of the iris and scleraFront (for now)
 vb                = get_view_box(dom)
@@ -391,20 +366,16 @@ def frame(posPleft, posPright):
     dtR  = now - startTimeR
 
     frames += 1
-#	if(now > beginningTime):
-#		print(frames/(now-beginningTime))
 
     
-    if (sound == True and OP_MODE == ALERT):
+    if (sound == True and OP_MODE == ALERT): #use for noticing a sound
         if (change_sound == True):
-            # curX = random.randint(-20,20)
-            # curY = random.randint(-20,20)
-            change_eye_direction(0,20)
+            change_eye_direction(0,20) # <- change this line to change how the eyes react to sound
             change_sound = False
         curX = curXSet
         curY = curYSet
 
-    elif(OP_MODE == ABNORMAL or OP_MODE == UNCONSCIOUS): #was previously 1
+    elif(OP_MODE == ABNORMAL or OP_MODE == UNCONSCIOUS): #have the eyes to look forward
         # Eye position from analog inputs
         change_sound = False
         curX = curXSet
@@ -494,14 +465,14 @@ def frame(posPleft, posPright):
             blinkStateRight     = 1 # ENBLINK
             blinkStartTimeRight = now
             blinkDurationRight  = duration
-        if (OP_MODE == ABNORMAL):
+        if (OP_MODE == ABNORMAL): #change the timing of the blinking
             timeToNextBlink = duration * 3 + random.uniform(10.0, 15.0)
         else: 
             timeToNextBlink = duration * 3 + random.uniform(0.0, 4.0)
             
        
 
-    if blinkStateLeft or (OP_MODE == UNCONSCIOUS): # Left eye currently winking/blinking?
+    if blinkStateLeft or (OP_MODE == UNCONSCIOUS): # Left eye currently winking/blinking? 
         # Check if blink time has elapsed...
         if (now - blinkStartTimeLeft) >= blinkDurationLeft:
             # Yes...increment blink state, unless...
@@ -564,12 +535,10 @@ def frame(posPleft, posPright):
         n = 0.4 - curY / 60.0
         if   n < 0.0: n = 0.0
         elif n > 1.0: n = 1.0
-        #trackingPos = (trackingPos * 3.0 + n) * 0.25
         if CRAZY_EYES:
             n = 0.4 - curYR / 60.0
             if   n < 0.0: n = 0.0
             elif n > 1.0: n = 1.0
-            #trackingPosR = (trackingPosR * 3.0 + n) * 0.25
 
     if blinkStateLeft:
         n = (now - blinkStartTimeLeft) / blinkDurationLeft
@@ -578,7 +547,6 @@ def frame(posPleft, posPright):
     else:
         n = 0.0
     newLeftUpperLidWeight = trackingPos + (n * (1.0 - trackingPos))
-    #newLeftLowerLidWeight = (1.0 - trackingPos) + (n * trackingPos)
     newLeftLowerLidWeight = trackingPos + (n * (1.0 - trackingPos))
 
     if blinkStateRight:
@@ -589,12 +557,10 @@ def frame(posPleft, posPright):
         n = 0.0
     if CRAZY_EYES:
         newRightUpperLidWeight = trackingPosR + (n * (1.0 - trackingPosR))
-        #newRightLowerLidWeight = (1.0 - trackingPosR) + (n * trackingPosR)
         newRightLowerLidWeight = trackingPosR + (n * (1.0 - trackingPosR))
     else:
         newRightUpperLidWeight = trackingPos + (n * (1.0 - trackingPos))
         newRightLowerLidWeight = trackingPos + (n * (1.0 - trackingPos))
-        #newRightLowerLidWeight = (1.0 - trackingPos) + (n * trackingPos)
     
     if (luRegen or (abs(newLeftUpperLidWeight - prevLeftUpperLidWeight) >=
       upperLidRegenThreshold)):
@@ -734,9 +700,9 @@ def split( # Recursive simulated pupil response when no analog sensor
 
 # setup the light sensor
 i2c = board.I2C()
-#tca = adafruit_tca9548a.TCA9548A(i2c)
-#tsl1 = adafruit_tsl2591.TSL2591(tca[0])
-#tsl2 = adafruit_tsl2591.TSL2591(tca[1])
+#tca = adafruit_tca9548a.TCA9548A(i2c)  # <- uncomment line when lux sensor is attached 
+#tsl1 = adafruit_tsl2591.TSL2591(tca[0])  # <- uncomment line when lux sensor is attached 
+#tsl2 = adafruit_tsl2591.TSL2591(tca[1])  # <- uncomment line when lux sensor is attached 
 curTime = time.time()
 eyeMoveFlag = True
 lux_left = 0  # this is for the light sensor
@@ -780,6 +746,7 @@ def change_mode(mode):
 
 # dog control function which split the command string, 
 # and change features
+# use this function when implementing objective 4
 def control_dog():
     global temp_size
 
@@ -822,7 +789,6 @@ def control_dog():
 
 
 def lux_control(lux): 
-    #print(lux)
     if (0 < lux < 100):
         return 1
     elif (lux > 1000): 
@@ -834,7 +800,6 @@ def buttoncheck():
     global OP_MODE
     global LEFT_MODE, RIGHT_MODE
     global timeToNextBlink
-    #print(OP_MODE)
     if (not GPIO.input(alert_button)):
         OP_MODE = ALERT
         timeToNextBlink = 1
@@ -906,11 +871,10 @@ while (end - start < total_time):
         sound = False
         
     if (time.time() - curTime > 3):
-        #lux_left = tsl1.infrared
-        #lux_right = tsl2.infrared
+        #lux_left = tsl1.infrared # <- uncomment line when lux sensor is attached 
+        #lux_right = tsl2.infrared # <- uncomment line when lux sensor is attached
         lux_left = random.randint(100,1000)
         lux_right = random.randint(100,1000)
-        #curTime = time.time()
         buttoncheck()
     if (OP_MODE == ALERT):
         pupil_expected_size_left = lux_control(lux_left)
@@ -944,14 +908,9 @@ while (end - start < total_time):
         # Scale to 0.0 to 1.0:
         pupil_expected_size_left = (pupil_expected_size_left - PUPIL_MIN) / (PUPIL_MAX - PUPIL_MIN)
         pupil_expected_size_right = (pupil_expected_size_right - PUPIL_MIN) / (PUPIL_MAX - PUPIL_MIN)
-        #print("BL " + str(pupil_expected_size_left))
-        #print("BR " + str(pupil_expected_size_right))
         if PUPIL_SMOOTH > 0:
             pupil_expected_size_left = ((currentPupilScale_left * (PUPIL_SMOOTH - 1) + pupil_expected_size_left) / PUPIL_SMOOTH)
             pupil_expected_size_right = ((currentPupilScale_right * (PUPIL_SMOOTH - 1) + pupil_expected_size_right) / PUPIL_SMOOTH)
-            #print("AL " + str(pupil_expected_size_left))
-            #print("AR " + str(pupil_expected_size_right))
-        #pupil_expected_size = change_size
         frame(pupil_expected_size_left, pupil_expected_size_right)
     else: # Fractal auto pupil scale
         pupil_expected_size = random.random()
@@ -959,8 +918,7 @@ while (end - start < total_time):
     currentPupilScale_left = pupil_expected_size_left
     currentPupilScale_right = pupil_expected_size_right
     end = time.time() 
-    #print(end - start) 
-    #print("\n")
+
     
 stream.stop_stream()
 stream.close()
