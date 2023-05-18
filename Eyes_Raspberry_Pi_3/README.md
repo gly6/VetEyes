@@ -16,5 +16,6 @@ Setup
     
         - The light sensor should be connected to the multiplexer SC0/SD0 and SC1/SD1 
         
-        - at the moment light sensor is commented out (CTRL - F uncomment to find the lines to uncomment when testing the lux sensor) 
-    
+        - at the moment light sensor is commented out (CTRL - F uncomment to find the lines to uncomment when testing the lux sensor)
+
+All comments are in eyes_mic_test.py
