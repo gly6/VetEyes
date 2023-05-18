@@ -5,7 +5,7 @@ import threading
 
 class Serial_input:
     def __init__(self, baud = 9600):
-        self.ser = serial.Serial("/dev/ttyACM0", baud, timeout=1)
+        self.ser = serial.Serial("/dev/ttyAMA0", baud, timeout=1)
         self.ser.baudrate = baud
         self.queue = deque()
         self.ser.reset_input_buffer()
@@ -19,8 +19,8 @@ class Serial_input:
                 temp_read = input1.decode('utf-8').strip()
                 # temp_read = temp_read.strip()
                 self.queue.append(temp_read)
-                print("get from serial", temp_read)
-                time.sleep(1)
+                print("get from serial", len(self.queue))
+                time.sleep(0.1)
     
     def sendSerialString(self, sendStr):
         sendStr += "\n"

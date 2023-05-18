@@ -12,5 +12,10 @@ fbx2: fbx2.c
 	cc $(CFLAGS) fbx2.c $(LIBS) -o fbx2
 	strip fbx2
 
+start: 
+	if pgrep fbx2; then sudo killall fbx2 -q; fi
+	sudo ./fbx2 -i &
+	python3 eyes_mic_test.py
+
 clean:
 	rm -f fbx2

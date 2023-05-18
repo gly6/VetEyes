@@ -123,7 +123,7 @@ light  = pi3d.Light(lightpos=(0, -500, -500), lightamb=(0.2, 0.2, 0.2))
 
 # Load texture maps --------------------------------------------------------
 
-irisMap   = pi3d.Texture("graphics/Dog1.jpg"  , mipmap=False,
+irisMap   = pi3d.Texture("VetEyes/New_Photos/NewDog3_3.png"  , mipmap=False,
               filter=pi3d.GL_LINEAR)
 scleraMap = pi3d.Texture("graphics/sclera.png", mipmap=False,
               filter=pi3d.GL_LINEAR, blend=True)
@@ -744,6 +744,7 @@ while True:
         curTime = time.time()
 
     if (OP_MODE == 0):
+        print(lux)
         if (lux > 500):
             v = 0.2
         elif (lux <= 500):
