@@ -6,7 +6,7 @@ Username and Password for the Raspberry Pi 4 is pi and veteyes I think... if tha
 
 To run the eyes
 
-    - "make start" to have the eyes run 
+    - "make start" to have the eyes run (using the eyes_mic_test.py file for now)
     
 Setup 
 
